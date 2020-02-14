@@ -1,5 +1,4 @@
 # example netlify.toml
 [build]
-  command = "yarn build"
   functions = "functions" #  netlify-lambda reads this
   publish = "public"
