@@ -2,12 +2,13 @@
   "name": "netlify-google-spreadsheet-demo",
   "version": "1.0.0",
   "main": "index.js",
-  "author": "swyx <shawnthe1@gmail.com>",
+  "author": "swyx <dont@email.me>",
   "license": "MIT",
-  "devDependencies": {
-    "netlify-lambda": "^1.6.3"
-  },
   "scripts": {
-    "postinstall": "netlify-lambda install"
+    "foo": "echo you can write a script here"
+  },
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "google-spreadsheet": "^3.0.8"
   }
 }
