@@ -13,7 +13,7 @@ GOOGLE_SERVICE_ACCOUNT_EMAIL= # e.g. googlenetlify-spreadsheet-test@foo-bar-1234
 GOOGLE_PRIVATE_KEY= # e.g. -----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG etc etc super long key
 ```
 
-and then with the Netlify CLI you can run `netlify dev` and it opens up locally for you to develop.
+and then with the Netlify CLI you can run `ntl dev` (Netlify Dev) and it opens up locally for you to develop.
 
 ## to set this up on your own in production on netlify
 

@@ -3,7 +3,7 @@
  */
 if (!process.env.NETLIFY) {
   // get local env vars if not in CI
-  // if in CI i expect its already set via the UI
+  // if in CI i expect its already set via the Netlify UI
   require('dotenv').config();
 }
 // required env vars
@@ -19,39 +19,33 @@ if (!process.env.GOOGLE_SPREADSHEET_ID_FROM_URL)
  * ok real work
  *
  * the library also allows working just with cells,
- * but this example only shows editing rows since thats more common
+ * but this example only shows CRUD on rows since thats more common
  */
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 
 exports.handler = async (event, context) => {
   const doc = new GoogleSpreadsheet(process.env.GOOGLE_SPREADSHEET_ID_FROM_URL);
+  // https://theoephraim.github.io/node-google-spreadsheet/#/getting-started/authentication
   await doc.useServiceAccountAuth({
     client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
     private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n')
   });
-  await doc.loadInfo(); // loads document properties and worksheets
-  const sheet = doc.sheetsByIndex[0]; // you may want to customize this
-  // const headers = await sheet.loadHeaderRow();
-  console.log('accessing', sheet.title, 'it has ', sheet.rowCount, ' rows');
+  await doc.loadInfo(); // loads document properties and worksheets. required.
+  const sheet = doc.sheetsByIndex[0]; // you may want to customize this if you have more than 1 sheet
+  // console.log('accessing', sheet.title, 'it has ', sheet.rowCount, ' rows');
   const path = event.path.replace(/\.netlify\/functions\/[^/]+/, '');
   const segments = path.split('/').filter((e) => e);
+
   try {
     switch (event.httpMethod) {
       case 'GET':
         /* GET /.netlify/functions/google-spreadsheet-fn */
         if (segments.length === 0) {
           const rows = await sheet.getRows(); // can pass in { limit, offset }
-          let serializedRows = [];
-          rows.forEach((row) => {
-            let temp = {};
-            sheet.headerValues.map((header) => {
-              temp[header] = row[header];
-            });
-            serializedRows.push(temp);
-          });
+          const serializedRows = rows.map(serializeRow);
           return {
             statusCode: 200,
-            // body: JSON.stringify({rows}) // dont do this - has circular references
+            // body: JSON.stringify(rows) // dont do this - has circular references
             body: JSON.stringify(serializedRows) // better
           };
         }
@@ -59,9 +53,10 @@ exports.handler = async (event, context) => {
         if (segments.length === 1) {
           const rowId = segments[0];
           const rows = await sheet.getRows(); // can pass in { limit, offset }
+          const srow = serializeRow(rows[rowId]);
           return {
             statusCode: 200,
-            body: JSON.stringify(rows[rowId]) // just sends less data over the wire
+            body: JSON.stringify(srow) // just sends less data over the wire
           };
         } else {
           return {
@@ -74,12 +69,15 @@ exports.handler = async (event, context) => {
       case 'POST':
         /* parse the string body into a useable JS object */
         const data = JSON.parse(event.body);
-        console.log('`POST` invoked', data);
+        // console.log('`POST` invoked', data);
         const addedRow = await sheet.addRow(data);
-        console.log({ addedRow });
+        // console.log({ addedRow });
         return {
           statusCode: 200,
-          body: JSON.stringify({ message: `POST Success` })
+          body: JSON.stringify({
+            message: `POST Success - added row ${addedRow._rowNumber}`,
+            rowNumber: addedRow._rowNumber
+          })
         };
       /* PUT /.netlify/functions/google-spreadsheet-fn/123456 */
       case 'PUT':
@@ -97,8 +95,11 @@ exports.handler = async (event, context) => {
           const rows = await sheet.getRows(); // can pass in { limit, offset }
           const data = JSON.parse(event.body);
           console.log(`PUT invoked on row ${rowId}`, data);
-          rows[rowId] = data;
-          await rows[rowId].save(); // save updates
+          const selectedRow = rows[rowId];
+          Object.entries(data).forEach(([k, v]) => {
+            selectedRow[k] = v;
+          });
+          await selectedRow.save(); // save updates
           return {
             statusCode: 200,
             body: 'PUT is a success!'
@@ -142,6 +143,17 @@ exports.handler = async (event, context) => {
       statusCode: 500,
       body: err
     };
+  }
+
+  /*
+   * utils
+   */
+  function serializeRow(row) {
+    let temp = {};
+    sheet.headerValues.map((header) => {
+      temp[header] = row[header];
+    });
+    return temp;
   }
 };
 
