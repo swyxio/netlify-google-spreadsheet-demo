@@ -18,12 +18,19 @@ if (!process.env.GOOGLE_SPREADSHEET_ID_FROM_URL)
 /*
  * ok real work
  *
+ * GET /.netlify/functions/google-spreadsheet-fn
+ * GET /.netlify/functions/google-spreadsheet-fn/1
+ * PUT /.netlify/functions/google-spreadsheet-fn/1
+ * POST /.netlify/functions/google-spreadsheet-fn
+ * DELETE /.netlify/functions/google-spreadsheet-fn/1
+ *
  * the library also allows working just with cells,
  * but this example only shows CRUD on rows since thats more common
  */
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 
 exports.handler = async (event, context) => {
+  console.log({ event });
   const doc = new GoogleSpreadsheet(process.env.GOOGLE_SPREADSHEET_ID_FROM_URL);
   // https://theoephraim.github.io/node-google-spreadsheet/#/getting-started/authentication
   await doc.useServiceAccountAuth({
@@ -59,11 +66,9 @@ exports.handler = async (event, context) => {
             body: JSON.stringify(srow) // just sends less data over the wire
           };
         } else {
-          return {
-            statusCode: 500,
-            body:
-              'too many segments in GET request - you should only call somehting like /.netlify/functions/google-spreadsheet-fn/123456 not /.netlify/functions/google-spreadsheet-fn/123456/789/101112'
-          };
+          throw new Error(
+            'too many segments in GET request - you should only call somehting like /.netlify/functions/google-spreadsheet-fn/123456 not /.netlify/functions/google-spreadsheet-fn/123456/789/101112'
+          );
         }
       /* POST /.netlify/functions/google-spreadsheet-fn */
       case 'POST':
@@ -156,18 +161,3 @@ exports.handler = async (event, context) => {
     return temp;
   }
 };
-
-// exports.handler = async (event, context) => {
-//   try {
-//     const subject = event.queryStringParameters.name || 'World';
-//     return {
-//       statusCode: 200,
-//       body: JSON.stringify({ message: `Hello ${subject}` })
-//       // // more keys you can return:
-//       // headers: { "headerName": "headerValue", ... },
-//       // isBase64Encoded: true,
-//     };
-//   } catch (err) {
-//     return { statusCode: 500, body: err.toString() };
-//   }
-// };
