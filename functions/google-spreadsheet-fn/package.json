@@ -1,0 +1,10 @@
+{
+  "name": "google-spreadsheet-fn",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "google-spreadsheet": "^3.0.8"
+  }
+}
