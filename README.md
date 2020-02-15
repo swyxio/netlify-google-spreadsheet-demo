@@ -1,4 +1,4 @@
-# google netlify sheets demo
+# netlify dev + google sheets api v4 demo
 
 check https://netlify-google-spreadsheet-demo.netlify.com/
 
