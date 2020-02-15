@@ -2,6 +2,9 @@
 
 check https://netlify-google-spreadsheet-demo.netlify.com/
 
+![googlesheets](https://user-images.githubusercontent.com/6764957/74577961-ecb51800-4f5f-11ea-9b81-30a5fcb6e68c.gif)
+
+
 ## How to get the env vars:
 
 - tutorial to come
