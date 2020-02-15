@@ -1,6 +1,7 @@
 # netlify dev + google sheets api v4 demo
 
 - Live Demo: check https://netlify-google-spreadsheet-demo.netlify.com/
+- Spreadsheet (read only): https://docs.google.com/spreadsheets/d/10FIUu_reo5FctMpuiOYHJstj3lTit4pvp-VS7mZhgVw/edit?usp=sharing
 - Blogpost: https://www.swyx.io/writing/netlify-google-sheets
 
 
