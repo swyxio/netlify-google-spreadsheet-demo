@@ -1,23 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>netlify google sheets demo</title>
-  <script src="app.js"></script>
-</head>
-<body>
-  <h1>Google Sheets Demo</h1>
-  <h2>source is <a href="https://github.com/sw-yx/netlify-google-spreadsheet-demo">here</a></h2>
-  <p>
-    open the console and click the button
-  </p>
-  <ul>
-  <li><button id="btn1">get all rows</button></li>
-  <li><button id="btn2">POST new row with new random number</button></li>
-  <li><button id="btn3">GET 1st row</button></li>
-  <li><button id="btn4">PUT 1st row with new random number</button></li>
-  </ul>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>netlify + google sheets demo</title>
+    <script src="app.js"></script>
+    <style>
+      main {
+        max-width: 38rem;
+        padding: 2rem;
+        margin: auto;
+        margin-top: 3rem;
+        border-radius: 20px;
+        background: linear-gradient(315deg, #84dbdf, #6fb9bb);
+        box-shadow: 0 2.8px 2.2px rgba(0, 0, 0, 0.02),
+          0 6.7px 5.3px rgba(0, 0, 0, 0.028), 0 12.5px 10px rgba(0, 0, 0, 0.035),
+          0 22.3px 17.9px rgba(0, 0, 0, 0.042),
+          0 41.8px 33.4px rgba(0, 0, 0, 0.05), 0 100px 80px rgba(0, 0, 0, 0.07);
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+          Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+          'Segoe UI Symbol';
+        background: linear-gradient(324deg, #232927 4%, transparent 4%) -70px 43px,
+          linear-gradient(36deg, #232927 4%, transparent 4%) 30px 43px,
+          linear-gradient(72deg, #e3d7bf 8.5%, transparent 8.5%) 30px 43px,
+          linear-gradient(288deg, #e3d7bf 8.5%, transparent 8.5%) -70px 43px,
+          linear-gradient(216deg, #e3d7bf 7.5%, transparent 7.5%) -70px 23px,
+          linear-gradient(144deg, #e3d7bf 7.5%, transparent 7.5%) 30px 23px,
+          linear-gradient(324deg, #232927 4%, transparent 4%) -20px 93px,
+          linear-gradient(36deg, #232927 4%, transparent 4%) 80px 93px,
+          linear-gradient(72deg, #e3d7bf 8.5%, transparent 8.5%) 80px 93px,
+          linear-gradient(288deg, #e3d7bf 8.5%, transparent 8.5%) -20px 93px,
+          linear-gradient(216deg, #e3d7bf 7.5%, transparent 7.5%) -20px 73px,
+          linear-gradient(144deg, #e3d7bf 7.5%, transparent 7.5%) 80px 73px;
+        background-color: #232927;
+        background-size: 100px 100px;
+      }
+      pre {
+        border-radius: 10px;
+        background: #cdcfc6;
+        box-shadow: inset 20px 20px 60px #aeb0a8, inset -20px -20px 60px #eceee4;
+        min-height: 100px;
+        padding: 2rem;
+      }
+      h1,
+      h2 {
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>
+        <a href="https://github.com/netlify/cli/blob/master/docs/netlify-dev.md"
+          >Netlify Dev</a
+        >
+        + Google Sheets Demo
+      </h1>
+      <h2>
+        source is
+        <a href="https://github.com/sw-yx/netlify-google-spreadsheet-demo"
+          >here</a
+        >
+      </h2>
+      <p>
+        open the console and click the buttons
+      </p>
+      <ul>
+        <li><button id="btn1">GET all rows</button></li>
+        <li><button id="btn3">GET 1st row</button></li>
+        <li><button id="btn2">POST new row with new random number</button></li>
+        <li><button id="btn4">PUT 1st row with new random number</button></li>
+        <li><button id="btn5">DELETE last row</button> (except 1st row)</li>
+      </ul>
+      <pre id="printout">
+        click a button and see the response here
+      </pre>
+    </main>
+  </body>
 </html>

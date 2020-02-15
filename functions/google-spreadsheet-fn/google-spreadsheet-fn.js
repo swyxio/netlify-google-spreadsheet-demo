@@ -24,7 +24,9 @@ if (!process.env.GOOGLE_SPREADSHEET_ID_FROM_URL)
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 
 exports.handler = async (event, context) => {
+  const UserIP = event.headers['x-nf-client-connection-ip'] || '6.9.6.9'; // not required, i just feel like using this info
   const doc = new GoogleSpreadsheet(process.env.GOOGLE_SPREADSHEET_ID_FROM_URL);
+
   // https://theoephraim.github.io/node-google-spreadsheet/#/getting-started/authentication
   await doc.useServiceAccountAuth({
     client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
@@ -69,14 +71,15 @@ exports.handler = async (event, context) => {
       case 'POST':
         /* parse the string body into a useable JS object */
         const data = JSON.parse(event.body);
+        data.UserIP = UserIP;
         // console.log('`POST` invoked', data);
         const addedRow = await sheet.addRow(data);
         // console.log({ addedRow });
         return {
           statusCode: 200,
           body: JSON.stringify({
-            message: `POST Success - added row ${addedRow._rowNumber}`,
-            rowNumber: addedRow._rowNumber
+            message: `POST Success - added row ${addedRow._rowNumber - 1}`,
+            rowNumber: addedRow._rowNumber - 1 // minus the header row
           })
         };
       /* PUT /.netlify/functions/google-spreadsheet-fn/123456 */
@@ -94,6 +97,7 @@ exports.handler = async (event, context) => {
           const rowId = segments[0];
           const rows = await sheet.getRows(); // can pass in { limit, offset }
           const data = JSON.parse(event.body);
+          data.UserIP = UserIP;
           console.log(`PUT invoked on row ${rowId}`, data);
           const selectedRow = rows[rowId];
           Object.entries(data).forEach(([k, v]) => {
@@ -102,7 +106,7 @@ exports.handler = async (event, context) => {
           await selectedRow.save(); // save updates
           return {
             statusCode: 200,
-            body: 'PUT is a success!'
+            body: JSON.stringify({ message: 'PUT is a success!' })
             // body: JSON.stringify(rows[rowId]) // just sends less data over the wire
           };
         } else {
@@ -114,19 +118,40 @@ exports.handler = async (event, context) => {
         }
       /* DELETE /.netlify/functions/google-spreadsheet-fn/123456 */
       case 'DELETE':
+        //
+        // warning:
+        // this code is untested but you can probably figure this out
+        //
+
         if (segments.length === 1) {
-          const rowId = segments[0];
           const rows = await sheet.getRows(); // can pass in { limit, offset }
-          await rows[rowId].delete(); // delete a row
-          return {
-            statusCode: 200,
-            body: 'DELETE is a success!'
-          };
+          // // we dont actually use this in the demo but you might
+          // const rowId = segments[0];
+          // await rows[rowId].delete(); // delete a row
+
+          // do this
+          if (rows.length > 1) {
+            const lastRow = rows[rows.length - 1];
+            await lastRow.delete(); // delete a row
+            return {
+              statusCode: 200,
+              body: JSON.stringify({ message: 'DELETE is a success!' })
+            };
+          } else {
+            return {
+              statusCode: 200,
+              body: JSON.stringify({
+                message: 'no rows left to delete! (first row is sacred)'
+              })
+            };
+          }
         } else {
           return {
             statusCode: 500,
-            body:
-              'invalid segments in DELETE request, must be /.netlify/functions/google-spreadsheet-fn/123456'
+            body: JSON.stringify({
+              message:
+                'invalid segments in DELETE request, must be /.netlify/functions/google-spreadsheet-fn/123456'
+            })
           };
         }
       /* Fallthrough case */
@@ -141,7 +166,7 @@ exports.handler = async (event, context) => {
     console.error(err);
     return {
       statusCode: 500,
-      body: err
+      body: err.toString()
     };
   }
 
@@ -156,18 +181,3 @@ exports.handler = async (event, context) => {
     return temp;
   }
 };
-
-// exports.handler = async (event, context) => {
-//   try {
-//     const subject = event.queryStringParameters.name || 'World';
-//     return {
-//       statusCode: 200,
-//       body: JSON.stringify({ message: `Hello ${subject}` })
-//       // // more keys you can return:
-//       // headers: { "headerName": "headerValue", ... },
-//       // isBase64Encoded: true,
-//     };
-//   } catch (err) {
-//     return { statusCode: 500, body: err.toString() };
-//   }
-// };
