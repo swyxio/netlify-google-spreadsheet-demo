@@ -18,6 +18,12 @@ if (!process.env.GOOGLE_SPREADSHEET_ID_FROM_URL)
 /*
  * ok real work
  *
+ * GET /.netlify/functions/google-spreadsheet-fn
+ * GET /.netlify/functions/google-spreadsheet-fn/1
+ * PUT /.netlify/functions/google-spreadsheet-fn/1
+ * POST /.netlify/functions/google-spreadsheet-fn
+ * DELETE /.netlify/functions/google-spreadsheet-fn/1
+ *
  * the library also allows working just with cells,
  * but this example only shows CRUD on rows since thats more common
  */
@@ -61,11 +67,9 @@ exports.handler = async (event, context) => {
             body: JSON.stringify(srow) // just sends less data over the wire
           };
         } else {
-          return {
-            statusCode: 500,
-            body:
-              'too many segments in GET request - you should only call somehting like /.netlify/functions/google-spreadsheet-fn/123456 not /.netlify/functions/google-spreadsheet-fn/123456/789/101112'
-          };
+          throw new Error(
+            'too many segments in GET request - you should only call somehting like /.netlify/functions/google-spreadsheet-fn/123456 not /.netlify/functions/google-spreadsheet-fn/123456/789/101112'
+          );
         }
       /* POST /.netlify/functions/google-spreadsheet-fn */
       case 'POST':
